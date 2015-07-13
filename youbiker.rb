@@ -79,7 +79,7 @@ begin
     crawl.loop_file
     if opts[:watch]
         timers = Timers::Group.new
-        five_second_timer = timers.every(5) {
+        five_second_timer = timers.every(600) {
             p 'Get new'
             crawl = Crawl.new(opts)
             crawl.loop_file
