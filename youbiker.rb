@@ -48,7 +48,7 @@ class Crawl
         puts "Saving station information - #{@file_path}_station"
 
         File.open("#{@file_path}_station.json", "wb") do |file|
-            file << @station.to_json
+            file << conver_json(@station)
         end
     end
 
@@ -57,7 +57,7 @@ class Crawl
         puts "Saving exist situation - #{@file_path}"
 
         File.open("#{@file_path}.json", "wb") do |file|
-            file << @now.to_json
+            file << conver_json(@now)
         end
     end 
 
@@ -82,6 +82,15 @@ class Crawl
             @youbike_json = youbike_data
             p "JSON parse error: #{e}"
             @error = true
+        end
+    end
+
+    def conver_json(json)
+        begin
+            return json.to_json
+        rescue
+            p "JSON encoding error parse error"
+            return json.to_json.force_encoding("ISO-8859-1").encode("UTF-8")
         end
 
     end
