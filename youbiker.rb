@@ -73,8 +73,7 @@ class Crawl
     private
 
     def get_file
-        # youbike_data = Net::HTTP.get(URI.parse("http://opendata.dot.taipei.gov.tw/opendata/gwjs_cityhall.json"))
-        youbike_data = File.read("test/error.json")
+        youbike_data = Net::HTTP.get(URI.parse("http://opendata.dot.taipei.gov.tw/opendata/gwjs_cityhall.json"))
 
         begin
             @youbike_json = JSON.parse(youbike_data)
