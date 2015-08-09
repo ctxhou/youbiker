@@ -5,6 +5,7 @@ require "net/http"
 require "slop"
 require "timers"
 require 'fileutils'
+require "./mailer"
 
 class Crawl
 
@@ -99,27 +100,32 @@ end
 
 
 # main
-opts = Slop.parse do |o|
-    o.bool '-w', '--watch', '[boolean] enable crawl every 10 minutes', default: false
-    o.bool '-n', '--now', '[boolean] get existing now', default: true
-    o.bool '-s', '--station', '[boolean] get station info', default: false
-    o.string '-d', '--destination', '[string] data destination; ex: ruby main.rb -d data; then save data in `data` folder'
-    o.on '--help' do
-      puts o
-      exit
+begin
+    opts = Slop.parse do |o|
+        o.bool '-w', '--watch', '[boolean] enable crawl every 10 minutes', default: false
+        o.bool '-n', '--now', '[boolean] get existing now', default: true
+        o.bool '-s', '--station', '[boolean] get station info', default: false
+        o.string '-d', '--destination', '[string] data destination; ex: ruby main.rb -d data; then save data in `data` folder'
+        o.on '--help' do
+          puts o
+          exit
+        end
     end
-end
-opts = opts.to_hash
-crawl = Crawl.new(opts)
-crawl.loop_file
-if opts[:watch]
-    timers = Timers::Group.new
-    five_second_timer = timers.every(600) {
-        p 'Get new'
-        crawl = Crawl.new(opts)
-        crawl.loop_file
-        p '==================='
-    }
-    loop { timers.wait }
+    opts = opts.to_hash
+    crawl = Crawl.new(opts)
+    crawl.loop_file
+    if opts[:watch]
+        timers = Timers::Group.new
+        five_second_timer = timers.every(600) {
+            p 'Get new'
+            crawl = Crawl.new(opts)
+            crawl.loop_file
+            p '==================='
+        }
+        loop { timers.wait }
+    end
+
+rescue Exception => e
+    SendMail.send_mail(e)
 end
 
