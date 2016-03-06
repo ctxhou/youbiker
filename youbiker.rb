@@ -5,7 +5,7 @@ require "net/http"
 require "slop"
 require "timers"
 require 'fileutils'
-require "./mailer"
+# require "./mailer"
 
 class Crawl
 
@@ -22,7 +22,7 @@ class Crawl
         @now = []
         @station = []
         unless @error # if no json parse error, select; else direct write the complete file
-            @youbike_json.each do |data|
+            @youbike_json.each do |station, data|
                 if @options[:now]
                     @now << data.select { |key, value| ["iid", "sno", "sna", "sbi"].include?(key) }
                 end
@@ -74,11 +74,13 @@ class Crawl
     private
 
     def get_file
-        youbike_data = Net::HTTP.get(URI.parse("http://opendata.dot.taipei.gov.tw/opendata/gwjs_cityhall.json"))
+
+        youbike_data = open('https://tcgbusfs.blob.core.windows.net/blobyoubike/YouBikeTP.gz').read;
 
         begin
             @youbike_json = JSON.parse(youbike_data)
             @youbike_json = @youbike_json['retVal']
+
         rescue JSON::ParserError => e
             @youbike_json = youbike_data
             p "JSON parse error: #{e}"
@@ -126,6 +128,7 @@ begin
     end
 
 rescue Exception => e
-    SendMail.send_mail(e)
+    p e
+    # SendMail.send_mail(e)
 end
 
